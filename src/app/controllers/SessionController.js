@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import * as Yup from 'yup';
 import User from '../models/User.js';
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 import authConfig from './../../config/auth.js';
 
 class SessionController {
@@ -31,23 +31,29 @@ class SessionController {
       return response.status(400).json({ message: 'Dados inválidos!' });
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, existingUser.password_hash);
-    
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      existingUser.password_hash,
+    );
+
     if (!isPasswordCorrect) {
       return response.status(400).json({ message: 'Dados inválidos!' });
     }
 
-    const token = jwt.sign({ id: existingUser.id }, 
-      authConfig.secret, {
-      expiresIn: authConfig.expiresIn,
-    } )
+    const token = jwt.sign(
+      { id: existingUser.id, admin: existingUser.admin },
+      authConfig.secret,
+      {
+        expiresIn: authConfig.expiresIn,
+      },
+    );
 
-    return response.status(201).json({ 
-        id: existingUser.id,
-        name: existingUser.name,
-        email: existingUser.email,
-        admin: existingUser.admin,
-        token
+    return response.status(201).json({
+      id: existingUser.id,
+      name: existingUser.name,
+      email: existingUser.email,
+      admin: existingUser.admin,
+      token,
     });
   }
 }
